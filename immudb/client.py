@@ -5,7 +5,7 @@ from immudb import header_manipulator_client_interceptor
 from immudb.handler import (batchGet, batchSet, changePassword, createUser,
                           currentRoot, databaseCreate, databaseList, databaseUse, 
                           get, listUsers, safeGet, safeSet, setValue, history, 
-                          scan, reference)
+                          scan, reference, zadd, zscan)
 from immudb.rootService import RootService
 from immudb.grpc import schema_pb2_grpc
 
@@ -177,8 +177,20 @@ class ImmudbClient:
             )
         return reference.call(self.__stub, self.__rs, request)
     
-    def zadd(self):
-        pass
+    def zadd(self,set: bytes,score,key: bytes,index: int=None):
+        request = schema_pb2_grpc.schema__pb2.ZAddOptions(
+            set=set,
+            score=schema_pb2_grpc.schema__pb2.Score(score=score),
+            key=key,
+            index = schema_pb2_grpc.schema__pb2.Index(index=index))
+        return zadd.call(self.__stub, self.__rs, request)
     
-    def zscan(self):
-        pass
+    def zscan(self, set: bytes, offset: bytes, limit: int=10, reverse: bool=false, min, max):
+        request = schema_pb2_grpc.schema__pb2.ZScanOptions(
+            set=set,
+            offset=offset,
+            limit=limit,
+            reverse=reverse,
+            min=schema_pb2_grpc.schema__pb2.Score(score=min),
+            max=schema_pb2_grpc.schema__pb2.Score(score=max))
+        return zscan.call(self.__stub, self.__rs, request)
